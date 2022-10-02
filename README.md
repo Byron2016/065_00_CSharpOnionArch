@@ -85,3 +85,71 @@ src
 	dotnet add package FluentValidation --version 11.2.2
 	dotnet add package FluentValidation.DependencyInjectionExtensions --version 11.2.2
 	```
+
+5. Add inside **Application** project this folder structure with a Test.cs file inside each folder.
+Note: We add a Test.cs file to force Visual Studio to link new folder with the project.
+
+```
+src
+└───Core
+│   └───Application
+│       └───DTOs
+│       │
+│       └───Behavior
+│       │
+│       └───Features
+│       │
+│       └───Filters 
+│       │
+│       └───Interfaces
+│       │
+│       └───Mappings
+│       │
+│       └───Wrappers
+```
+
+6. Add to root's **Application** project a new class ServiceExtensions.cs
+	```c#
+	using FluentValidation;
+	using MediatR;
+	using Microsoft.Extensions.DependencyInjection;
+	using System.Reflection;
+	
+	namespace Application
+	{
+		public static class ServiceExtensions
+		{
+			public static void AddApplicationLayer(this IServiceCollection services)
+			{
+				services.AddAutoMapper(Assembly.GetExecutingAssembly());
+				services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+				services.AddMediatR(Assembly.GetExecutingAssembly());
+	
+			}
+		}
+	}
+	```
+7. Into WebAPI project 
+	- Add to WebAPI project a reference to application project
+	```c#
+	dotnet add WebAPI/WebAPI.csproj reference Application/Application.csproj
+	```
+	- Add a AddApplicationLayer like a new service
+	```c#
+	using Application;
+	
+	namespace WebAPI
+	{
+		public class Program
+		{
+			public static void Main(string[] args)
+			{
+				var builder = WebApplication.CreateBuilder(args);
+	
+				builder.Services.AddApplicationLayer();
+	
+				....
+			}
+		}
+	}
+	```

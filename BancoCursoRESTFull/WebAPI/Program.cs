@@ -1,3 +1,5 @@
+using Application;
+
 namespace WebAPI
 {
     public class Program
@@ -5,6 +7,8 @@ namespace WebAPI
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddApplicationLayer();
 
             // Add services to the container.
 
