@@ -1,0 +1,23 @@
+echo "<div>" >> README.md
+echo "	<div>" >> README.md
+echo "		<img src="https://raw.githubusercontent.com/Byron2016/00_forImages/main/images/Logo_01_00.png" align="left" alt="MyLogo" width="200">" >> README.md
+echo "	</div>" >> README.md
+echo "	&nbsp;" >> README.md
+echo "	<div>" >> README.md
+echo "		<h1>065_00_CSharpOnionArch</h1>" >> README.md
+echo "	</div>" >> README.md
+echo "</div>" >> README.md
+echo "" >> README.md
+echo "&nbsp;" >> README.md
+echo "" >> README.md
+echo "## Project Description" >> README.md
+echo "" >> README.md
+echo "## Stepts" >> README.md
+echo "" >> README.md
+
+git init
+git add .
+git commit -m "chore: first commit"
+git branch -M main
+git remote add origin https://github.com/Byron2016/065_00_CSharpOnionArch.git
+git push -u origin main
