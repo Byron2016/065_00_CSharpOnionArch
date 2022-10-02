@@ -7,27 +7,24 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{193F7EB0-577
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{903E809A-62E0-4DBF-91B8-0DF74D74BD2E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI", "WebAPI\WebAPI.csproj", "{DB948455-B323-4E02-9179-C9A7B4603675}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAPI", "WebAPI\WebAPI.csproj", "{DB948455-B323-4E02-9179-C9A7B4603675}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{DB91B49A-2BDB-4B9E-85B0-EFE8938800B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{0A0B2881-B0C2-49FA-8B49-726B1A7BDAAC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "Application\Application.csproj", "{0A0B2881-B0C2-49FA-8B49-726B1A7BDAAC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{E3F380E1-1655-4896-B9C6-6C363C4EA30B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csproj", "{E3F380E1-1655-4896-B9C6-6C363C4EA30B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{60CFAB77-7541-4B95-A4FE-D6FDE4E8877D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Persistence", "Persistence\Persistence.csproj", "{80802843-4EBD-4747-A787-0F9F82420BC5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Persistence", "Persistence\Persistence.csproj", "{80802843-4EBD-4747-A787-0F9F82420BC5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{A667B7F0-103F-435A-BDE3-E109E11391FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Shared\Shared.csproj", "{A667B7F0-103F-435A-BDE3-E109E11391FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{DB948455-B323-4E02-9179-C9A7B4603675}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -51,6 +48,9 @@ Global
 		{A667B7F0-103F-435A-BDE3-E109E11391FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A667B7F0-103F-435A-BDE3-E109E11391FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{903E809A-62E0-4DBF-91B8-0DF74D74BD2E} = {193F7EB0-5776-4CF7-9C74-841CB303E186}
 		{DB948455-B323-4E02-9179-C9A7B4603675} = {903E809A-62E0-4DBF-91B8-0DF74D74BD2E}
@@ -60,5 +60,8 @@ Global
 		{60CFAB77-7541-4B95-A4FE-D6FDE4E8877D} = {193F7EB0-5776-4CF7-9C74-841CB303E186}
 		{80802843-4EBD-4747-A787-0F9F82420BC5} = {60CFAB77-7541-4B95-A4FE-D6FDE4E8877D}
 		{A667B7F0-103F-435A-BDE3-E109E11391FA} = {60CFAB77-7541-4B95-A4FE-D6FDE4E8877D}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {93382792-F25C-417F-91D8-B1643F81F775}
 	EndGlobalSection
 EndGlobal

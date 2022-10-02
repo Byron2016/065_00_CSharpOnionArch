@@ -16,9 +16,10 @@
 &nbsp;
 
 We use these packages
-- package MediatR --version 10.0.1; 
-- package MediatR.Extensions.Microsoft.DependencyInjection --version 10.0.1
-- package AutoMapper --version 11.0.1
+- package MediatR --version 11.0.0; 
+- package MediatR.Extensions.Microsoft.DependencyInjection --version 11.0.0
+- package AutoMapper --version 12.0.0
+- package AutoMapper.Extensions.Microsoft.DependencyInjection --version 12.0.0
 - package FluentValidation --version 11.2.2
 - package FluentValidation.DependencyInjectionExtensions --version 11.2.2
 
@@ -67,3 +68,20 @@ src
 └───Presentation
     └───WebAPI
 ```
+
+4. Add packages:
+	- Into projects WebAPI: 
+	```c#
+	dotnet add package MediatR --version 11.0.0; 
+	```
+
+	- Into projects Application: 
+	```c#
+	dotnet add package MediatR.Extensions.Microsoft.DependencyInjection --version 11.0.0
+
+	dotnet add package AutoMapper.Extensions.Microsoft.DependencyInjection --version 12.0.0
+	dotnet add package AutoMapper --version 12.0.0
+
+	dotnet add package FluentValidation --version 11.2.2
+	dotnet add package FluentValidation.DependencyInjectionExtensions --version 11.2.2
+	```
