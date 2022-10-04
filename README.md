@@ -95,6 +95,8 @@ src
 │   └───Application
 │       └───DTOs
 │       │
+│       └───Exceptions
+│       │
 │       └───Behavior
 │       │
 │       └───Features
@@ -149,6 +151,99 @@ src
 				builder.Services.AddApplicationLayer();
 	
 				....
+			}
+		}
+	}
+	```
+
+8. Handling Exceptions via Pipeline
+	- Add to Application/Wrappers a new class **Response** 
+
+	```c#	
+	namespace Application.Wrappers
+	{
+        public bool Succeeded { get; set; }
+        public string Message { get; set; }
+        public List<string> Errors { get; set; }
+        public T Data { get; set; }
+
+        public Response()
+        {
+
+        }
+
+        public Response(T data, string message = null)
+        {
+            Succeeded = true;
+            Message = message;
+            Data = data;
+        }
+
+        public Response(string message)
+        {
+            Succeeded = false;
+            Message = message;
+        }
+	}
+	```
+
+	- Add to Applications/Behavior a new class **ValidationBehavior** 
+	```c#
+	using FluentValidation;
+	using MediatR;
+	
+	namespace Application.Behavior
+	{
+		//v6
+		public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
+		{
+			private readonly IEnumerable<IValidator<TRequest>> _validators;
+	
+			public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
+			{
+				_validators = validators;
+			}
+	
+			public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+			{
+				if (_validators.Any()){
+					var context = new FluentValidation.ValidationContext<TRequest>(request);
+					var validationResults = await Task.WhenAll(_validators.Select(v => v.ValidateAsync(context, cancellationToken)));
+					var failures = validationResults.SelectMany(r => r.Errors).Where(f => f != null).ToList();
+	
+					if(failures.Count() != 0)
+					{
+						throw new Exceptions.ValidationException(failures);
+					}
+					
+				}
+				return await next();
+			}
+		}
+	}
+	```
+
+	- Add to Applications/Exceptions a new class **ValidationException** 
+
+	```c#
+	using FluentValidation.Results;
+	
+	namespace Application.Exceptions
+	{
+		public class ValidationException: Exception
+		{
+			public List<string> Errors { get; }
+			public ValidationException() : base("One or more validation errors have occurred")
+			{
+				Errors = new List<string>();
+			}
+	
+			public ValidationException(IEnumerable<ValidationFailure> failures) : this()
+			{
+				foreach(var failure in failures)
+				{
+					Errors.Add(failure.ErrorMessage);
+				}
 			}
 		}
 	}
