@@ -37,6 +37,14 @@ bash Script_06_CreateClass.sh UpdateClienteCommand Application.Features.Clientes
 
 bash Script_06_CreateClass.sh GetAllClientes Application.Features.Clientes.Queries.GetAllClientes $1/Application/Features/Clientes/Queries/GetAllClientes
 bash Script_06_CreateClass.sh GetClienteById Application.Features.Clientes.Queries.GetClienteById $1/Application/Features/Clientes/Queries/GetClienteById
+
+bash Script_06_CreateClass.sh CreateClienteCommandHandler Application.Features.Clientes.Handlers $1/Application/Features/Clientes/Handlers
+bash Script_06_CreateClass.sh DeleteClienteCommandHandler Application.Features.Clientes.Handlers $1/Application/Features/Clientes/Handlers
+bash Script_06_CreateClass.sh UpdateClienteCommandHandler Application.Features.Clientes.Handlers $1/Application/Features/Clientes/Handlers
+
+bash Script_06_CreateClass.sh GetAllClientesQueryHandler Application.Features.Clientes.Handlers $1/Application/Features/Clientes/Handlers
+bash Script_06_CreateClass.sh GetClienteByIdQueryHandler Application.Features.Clientes.Handlers $1/Application/Features/Clientes/Handlers
+
 echo "FIN 1llamando a Script_06_CreateClass.sh"
 
 

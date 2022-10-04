@@ -29,6 +29,7 @@ mkdir Wrappers;
 mkdir Features/Clientes;
 mkdir Features/Clientes/Commands;
 mkdir Features/Clientes/Queries;
+mkdir Features/Clientes/Handlers;
 
 mkdir Features/Clientes/Commands/CreateClienteCommand;
 mkdir Features/Clientes/Commands/DeleteClienteCommand;
