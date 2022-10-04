@@ -248,3 +248,53 @@ src
 		}
 	}
 	```
+9. Domain Entities 
+	- Create Domain Entities
+		- Add to Domain/Common a new class **AuditableBaseEntity** 
+	
+		```c#
+		namespace Domain.Common
+		{
+			public class AuditableBaseEntity
+			{
+				public virtual int Id { get; set; }
+				public string CreatedBy { get; set; }
+				public DateTime Created { get; set; }
+				public string LastModifiedBy { get; set; }
+				public DateTime? LastModified { get; set; }
+			}
+		}
+		```
+	
+		- Add to Domain/ComEntities a new class **Cliente** 
+	
+		```c#
+		using Domain.Common;
+		
+		namespace Domain.Entities
+		{
+			public class Cliente : AuditableBaseEntity
+			{
+				private int _edad;
+				public string Nombre { get; set; }
+				public string Apellido { get; set; }
+				public DateTime FechaNacimiento { get; set; }
+				public string Telefono { get; set; }
+				public string Email { get; set; }
+				public string Direccion { get; set; }
+		
+				public int Edad
+				{
+					get
+					{
+						if(this._edad <= 0)
+						{
+							this._edad = new DateTime(DateTime.Now.Subtract(this.FechaNacimiento).Ticks).Year - 1;
+						}
+		
+						return this._edad;
+					}
+				}
+			}
+		}
+		```
