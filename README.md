@@ -475,3 +475,29 @@ src
 	}
 	```
 
+12. Implement Repository Pattern
+	- Add into Appliation project package Ardalis.Specivications.
+		```c#
+		dotnet add package Ardalis.Specification --version 6.1.0
+		```
+		
+	- Add into Persistance project package Ardalis.Specivications.
+		```c#
+		dotnet add package Ardalis.Specification.EntityFrameworkCore --version 6.1.0
+		```
+		
+	- Add into Application/Interfaces a new interface
+		```c#
+		using Ardalis.Specification;
+		
+		namespace Application.Interfaces
+		{
+			public interface IRepositoryAsync<T> : IRepositoryBase<T> where T : class
+			{
+			}
+		
+			public interface IReadRepositoryAsync<T> : IReadRepositoryBase<T> where T : class
+			{
+			}
+		}
+		```
