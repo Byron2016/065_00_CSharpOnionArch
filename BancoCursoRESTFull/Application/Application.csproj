@@ -14,4 +14,11 @@
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Clientes\Commands\CreateClienteCommand\" />
+    <Folder Include="Features\Clientes\Commands\DeleteClienteCommand\" />
+    <Folder Include="Features\Clientes\Commands\UpdateClienteCommand\" />
+    <Folder Include="Features\Clientes\Queries\" />
+  </ItemGroup>
+
 </Project>

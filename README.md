@@ -298,3 +298,76 @@ src
 			}
 		}
 		```
+
+10. Work on **CQRS** 
+	- Add **CQRS** structure for client entity.
+
+	```
+	src
+	└───Core
+	│   └───Application
+	│       │
+	│       └───Features
+	│           │
+	│           └───Clientes 
+	│              │
+	│              └───Commands
+	│              │   │
+	│              │   └───CreateClienteCommand
+	│              │   │
+	│              │   └───DeleteClienteCommand
+	│              │   │
+	│              │   └───UpdateClienteCommand
+	│              │
+	│              └───Queries
+	│              │   │
+	│              │   └───GetAllClientes
+	│              │   │
+	│              │   └───GetClienteById
+	│              │
+	│              └───Handlers
+	```
+
+	- Add **CQRS** classes.
+
+	```
+	│
+	└───Clientes 
+	   │
+	   └───Commands
+	   │   │
+	   │   └───CreateClienteCommand
+	   │   │   │
+	   │   │   └───CreateClienteCommand.cs
+	   │   │
+	   │   └───DeleteClienteCommand
+	   │   │   │
+	   │   │   └───DeleteClienteCommand.cs
+	   │   │
+	   │   └───UpdateClienteCommand
+	   │       │
+	   │       └───UpdateClienteCommand.cs
+	   │   
+	   └───Queries
+	   │   │
+	   │   └───GetAllClientes
+	   │   │   │
+	   │   │   └───GetAllClientes.cs
+	   │   │
+	   │   └───GetClienteById
+	   │       │
+	   │       └───GetClienteById.cs
+	   │   
+	   └───Handlers
+	        │	   
+	        └───CreateClienteCommandHandler.cs
+	        │
+	        └───DeleteClienteCommandHandler.cs
+	        │
+	        └───UpdateClienteCommandHandler.cs
+	        │				
+	        └───GetAllClientesQueryHandler.cs
+	        │
+	        └───GetClienteByIdQueryHandler.cs
+	```
+
