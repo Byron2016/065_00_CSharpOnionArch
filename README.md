@@ -22,6 +22,11 @@ We use these packages
 - package AutoMapper.Extensions.Microsoft.DependencyInjection --version 12.0.0
 - package FluentValidation --version 11.2.2
 - package FluentValidation.DependencyInjectionExtensions --version 11.2.2
+- package Microsoft.EntityFrameworkCore --version 6.0.9
+- package Microsoft.EntityFrameworkCore.SqlServer --version 6.0.9
+- package Microsoft.Extensions.Options.ConfigurationExtensions --version 6.0.0
+- package Ardalis.Specification --version 6.1.0
+- package Ardalis.Specification.EntityFrameworkCore --version 6.1.0
 
 ## Stepts
 
@@ -84,6 +89,16 @@ src
 
 	dotnet add package FluentValidation --version 11.2.2
 	dotnet add package FluentValidation.DependencyInjectionExtensions --version 11.2.2
+	
+	dotnet add package Ardalis.Specification --version 6.1.0
+	```
+	
+	- Into projects Persistance: 
+	```c#
+	dotnet add package Microsoft.EntityFrameworkCore --version 6.0.9
+	dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 6.0.9
+	dotnet add package Microsoft.Extensions.Options.ConfigurationExtensions --version 6.0.0
+	dotnet add package Ardalis.Specification.EntityFrameworkCore --version 6.1.0
 	```
 
 5. Add inside **Application** project this folder structure with a Test.cs file inside each folder.
@@ -131,30 +146,42 @@ src
 		}
 	}
 	```
-7. Into WebAPI project 
-	- Add to WebAPI project a reference to application project
-	```c#
-	dotnet add WebAPI/WebAPI.csproj reference Application/Application.csproj
-	```
-	- Add a AddApplicationLayer like a new service
-	```c#
-	using Application;
-	
-	namespace WebAPI
-	{
-		public class Program
+7. Projects references
+		- Into WebAPI project 
+			- Add to WebAPI project a reference to application project
+			```c#
+			dotnet add WebAPI/WebAPI.csproj reference Application/Application.csproj
+			```
+		
+		- Add an AddApplicationLayer like a new service
+		```c#
+		using Application;
+		
+		namespace WebAPI
 		{
-			public static void Main(string[] args)
+			public class Program
 			{
-				var builder = WebApplication.CreateBuilder(args);
-	
-				builder.Services.AddApplicationLayer();
-	
-				....
+				public static void Main(string[] args)
+				{
+					var builder = WebApplication.CreateBuilder(args);
+		
+					builder.Services.AddApplicationLayer();
+		
+					....
+				}
 			}
 		}
-	}
-	```
+		```
+		
+		- Into Persistence class library
+			- Add a reference to application project
+			```c#
+			dotnet add Persistence/Persistence.csproj reference Application/Application.csproj
+			```
+			- Add a reference to Domain project
+			```c#
+			dotnet add Persistence/Persistence.csproj reference Application/Application.csproj
+			```
 
 8. Handling Exceptions via Pipeline
 	- Add to Application/Wrappers a new class **Response** 
@@ -369,5 +396,82 @@ src
 	        └───GetAllClientesQueryHandler.cs
 	        │
 	        └───GetClienteByIdQueryHandler.cs
+	```
+
+11. Persistence 
+	- Add packages
+		- Into projects Persistance: 
+		```c#
+		dotnet add package Microsoft.EntityFrameworkCore --version 6.0.9
+		dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 6.0.9
+		dotnet add package Microsoft.Extensions.Options.ConfigurationExtensions --version 6.0.0
+		```
+		
+	- References
+		- Add to Persistence project a reference to Application project
+		```c#
+		dotnet add Persistence/Persistence.csproj reference Application/Application.csproj
+		```
+		- Add to Persistence project a reference to Domain project
+		```c#
+		dotnet add Persistence/Persistence.csproj reference Application/Application.csproj
+		```
+	
+	- Add into Application/Interfaces a new interface **IDateTimeService** 
+	```c#
+	namespace Application.Interfaces
+	{
+		public interface IDateTimeService
+		{
+			DateTime NowUtc { get;  }
+		}
+	}
+	```
+	
+	- Add DBContext
+	```c#
+	using Application.Interfaces;
+	using Domain.Common;
+	using Domain.Entities;
+	using Microsoft.EntityFrameworkCore;
+	
+	namespace Persistence
+	{
+		public class ApplicationDBContext : DbContext
+		{
+			private readonly IDateTimeService _dateTimeService;
+	
+			public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options, IDateTimeService dateTimeService) : base(options)
+			{
+				//good practice V.8 5.43
+				//The tracking behavior of this Tracking behavior controls that the entity framework core will keep all the information about an entity instance in its change restorer if an entity is tracked any change detected in that entity will be kept in the database during the save changes.
+				//The EF Core will also fix the navigation properties between the entities in the result of a query and the entities that are in the change logger.
+				ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+	
+				_dateTimeService = dateTimeService;
+			}
+	
+			public DbSet<Cliente> Clientes { get; set; }
+	
+			public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+			{
+				foreach(var entry in ChangeTracker.Entries<AuditableBaseEntity>())
+				{
+					switch (entry.State)
+					{
+						case EntityState.Added:
+							entry.Entity.Created = _dateTimeService.NowUtc;
+							break;
+						case EntityState.Modified:
+							entry.Entity.LastModified = _dateTimeService.NowUtc;
+							break;
+					}
+				}
+	
+				return base.SaveChangesAsync(cancellationToken);
+	
+			}
+		}
+	}
 	```
 
