@@ -26,6 +26,16 @@ dotnet add $1/Application package AutoMapper --version 12.0.0
 dotnet add $1/Application package FluentValidation --version 11.2.2
 dotnet add $1/Application package FluentValidation.DependencyInjectionExtensions --version 11.2.2
 
+dotnet add $1/Application package Ardalis.Specification --version 6.1.0
+
+echo "***********************************************************************";
+echo "           AddNuGet packages to Persistence class library             *";
+echo "***********************************************************************";
+echo "";
+dotnet add $1/Persistance package Microsoft.EntityFrameworkCore --version 6.0.9
+dotnet add $1/Persistance package Microsoft.EntityFrameworkCore.SqlServer --version 6.0.9
+dotnet add $1/Persistance package Microsoft.Extensions.Options.ConfigurationExtensions --version 6.0.0
+dotnet add $1/Persistance package Ardalis.Specification.EntityFrameworkCore --version 6.1.0
 
 dotnet list package
 

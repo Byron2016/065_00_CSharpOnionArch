@@ -25,7 +25,7 @@ echo '' >> Exceptions/ValidationException.cs;
 echo '' >> Behavior/ValidationBehavior.cs;
 #echo '' >> Features/Test.cs;
 echo '' >> Filters/Test.cs;
-echo '' >> Interfaces/Test.cs;
+echo '' >> Interfaces/IRepositoryAsync.cs;
 echo '' >> Mappings/Test.cs;
 echo '' >> Wrappers/Response.cs;
 
