@@ -1,6 +1,7 @@
 using Application;
 using Persistence;
 using Shared;
+using WebAPI.Extensions;
 
 namespace WebAPI
 {
@@ -33,6 +34,8 @@ namespace WebAPI
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
+
+            app.UseErrorHandlingMiddleware();
 
             app.MapControllers();
 

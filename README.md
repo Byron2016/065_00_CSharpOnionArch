@@ -717,3 +717,136 @@ src
 		- Go to Package Manager Console View and select Persistence project.
 			- add-migration MyFirstMigration -o Migrations
 			- update-database
+			
+13. Creating a custom error middleware
+		- Add into Application/Exceptions class **ApiException**
+		```c#
+		using System.Globalization;
+		
+		namespace Application.Exceptions
+		{
+			public class ApiException : Exception
+			{
+				//V 10
+				public ApiException():base()
+				{
+		
+				}
+		
+				public ApiException(string message) : base(message)
+				{
+		
+				}
+		
+				public ApiException(string message, params object[] args) : base(String.Format(CultureInfo.CurrentCulture,message , args))
+				{
+		
+				}
+			}
+		}
+		```
+		
+		- Add into WebAPI/Middleware class **ErrorHandlersMiddlewares**
+		```c#
+		using Application.Wrappers;
+		using System.Net;
+		using System.Text.Json;
+		
+		namespace WebAPI.Middlewares
+		{
+			public class ErrorHandlersMiddlewares
+			{
+				private readonly RequestDelegate _next;
+		
+				public ErrorHandlersMiddlewares(RequestDelegate next)
+				{
+					_next = next;
+				}
+		
+				public async Task Invoke(HttpContext context)
+				{
+					try
+					{
+						await _next(context);
+					}
+					catch (Exception error)
+					{
+						var response = context.Response;
+						response.ContentType = "application/json";
+						var responseModel = new Response<string>
+						{
+							Succeeded = false,
+							Message = error?.Message
+						};
+		
+						switch (error)
+						{
+							case Application.Exceptions.ApiException e:
+								//custom application error
+								response.StatusCode = (int)HttpStatusCode.BadRequest;
+								break;
+		
+							case Application.Exceptions.ValidationException e:
+								//custom application error
+								response.StatusCode = (int)HttpStatusCode.BadRequest;
+								responseModel.Errors = e.Errors;
+								break;
+		
+							case KeyNotFoundException e:
+								//not fount error
+								response.StatusCode = (int)HttpStatusCode.NotFound;
+								break;
+		
+							default:
+								// unhandled error
+								response.StatusCode = (int)HttpStatusCode.InternalServerError;
+								break;
+						}
+		
+						var result = JsonSerializer.Serialize(responseModel);
+		
+						await response.WriteAsync(result);
+					}
+				}
+			}
+		}
+		```
+		
+		- Create a extension method to implement middleware
+		```c#
+		using WebAPI.Middlewares;
+		
+		namespace WebAPI.Extensions
+		{
+			public static class AppExtensions
+			{
+				public static void UseErrorHandlingMiddleware(this IApplicationBuilder app)
+				{
+					app.UseMiddleware<ErrorHandlersMiddlewares>();
+				}
+			}
+		}
+		```
+		
+		- Implementar el middleware en el WebAPI
+		```c#
+		....
+		using WebAPI.Extensions;
+		
+		namespace WebAPI
+		{
+			public class Program
+			{
+				public static void Main(string[] args)
+				{
+					....
+		
+					app.UseAuthorization();
+		
+					app.UseErrorHandlingMiddleware();
+		
+					....
+				}
+			}
+		}
+		```
