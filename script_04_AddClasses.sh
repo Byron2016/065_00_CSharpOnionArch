@@ -45,6 +45,8 @@ bash Script_06_CreateClass.sh UpdateClienteCommandHandler Application.Features.C
 bash Script_06_CreateClass.sh GetAllClientesQueryHandler Application.Features.Clientes.Handlers $1/Application/Features/Clientes/Handlers
 bash Script_06_CreateClass.sh GetClienteByIdQueryHandler Application.Features.Clientes.Handlers $1/Application/Features/Clientes/Handlers
 
+bash Script_06_CreateClass.sh ErrorHandlersMiddlewares WebAPI.Middlewares $1/WebAPI/Middlewares
+
 echo "FIN 1llamando a Script_06_CreateClass.sh"
 
 
@@ -59,6 +61,12 @@ echo "Moving to $nuevoDir";
 cd $nuevoDir;
 echo '' >> Entities/Test.cs
 echo '' >> Common/Test.cs
+
+cd $pathOriginal;
+nuevoDir=$1/Persistence;
+echo "Moving to $nuevoDir";
+cd $nuevoDir;
+echo '' >> Configuration/Test.cs
 
 
 cd $pathOriginal;

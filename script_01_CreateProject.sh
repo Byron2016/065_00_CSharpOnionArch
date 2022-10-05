@@ -15,7 +15,7 @@ dotnet new classlib --output $1/Application;
 dotnet new classlib --output $1/Domain; 
 dotnet new classlib --output $1/Persistence; 
 dotnet new classlib --output $1/Shared; 
-dotnet new webapi --output $1/WebAPI; 
+dotnet new webapi --output $1/WebAPI --use-program-main; 
 
 echo "********************************************";
 echo "*    Linking projects with solution  $1    *";

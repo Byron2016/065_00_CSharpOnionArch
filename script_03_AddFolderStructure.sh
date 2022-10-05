@@ -38,11 +38,7 @@ mkdir Features/Clientes/Commands/UpdateClienteCommand;
 mkdir Features/Clientes/Queries/GetAllClientes;
 mkdir Features/Clientes/Queries/GetClienteById;
 
-echo "** $pathOriginal";
-echo $(pwd);
-echo "** fin";
 cd $pathOriginal;
-echo "***";
 currendDir=$(pwd);
 echo "Current dir is: $currendDir";
 nuevoDir=$1/Domain;
@@ -52,5 +48,25 @@ echo $(pwd);
 
 mkdir Entities;
 mkdir Common;
+
+cd $pathOriginal;
+currendDir=$(pwd);
+echo "Current dir is: $currendDir";
+nuevoDir=$1/Persistence;
+echo "Moving to $nuevoDir";
+cd $nuevoDir;
+echo $(pwd);
+
+mkdir Configuration;
+
+cd $pathOriginal;
+currendDir=$(pwd);
+echo "Current dir is: $currendDir";
+nuevoDir=$1/WebAPI;
+echo "Moving to $nuevoDir";
+cd $nuevoDir;
+echo $(pwd);
+
+mkdir Middlewares;
 
 echo "Add folders done";

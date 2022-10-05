@@ -12,6 +12,7 @@ echo "";
 
 currendDir=pwd;
 dotnet add $1/WebAPI package MediatR --version 11.0.0; 
+dotnet add $1/WebAPI package Microsoft.EntityFrameworkCore.Tools --version 6.0.9
 
 echo "***********************************************************************";
 echo "           AddNuGet packages to Application class library             *";

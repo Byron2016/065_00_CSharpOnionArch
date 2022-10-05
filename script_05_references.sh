@@ -13,6 +13,26 @@ echo "***********************************************************************";
 echo "";
 
 dotnet add $1/WebAPI/WebAPI.csproj reference $1/Application/Application.csproj
+dotnet add $1/WebAPI/WebAPI.csproj reference $1/Persistance/Persistance.csproj
+dotnet add $1/WebAPI/WebAPI.csproj reference $1/Shared/Shared.csproj
+
+echo "";
+echo "***********************************************************************";
+echo "                  Add references to Application                       *";
+echo "***********************************************************************";
+echo "";
+
+dotnet add $1/Application/Application.csproj reference $1/Domain/Domain.csproj
+		
+echo "";
+echo "***********************************************************************";
+echo "                  Add references to Persistence                       *";
+echo "***********************************************************************";
+echo "";
+
+dotnet add $1/Persistence/Persistence.csproj reference $1/Application/Application.csproj
+dotnet add $1/Persistence/Persistence.csproj reference $1/Domain/Domain.csproj
+dotnet add $1/Shared/Shared.csproj reference $1/Application/Application.csproj
 
 echo "Add references done";
 
