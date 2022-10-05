@@ -1,5 +1,6 @@
 using Application;
 using Persistence;
+using Shared;
 
 namespace WebAPI
 {
@@ -11,6 +12,7 @@ namespace WebAPI
             
             builder.Services.AddApplicationLayer();
             builder.Services.AddPersistenceInfraestructure(builder.Configuration);
+            builder.Services.AddSharedInfraestructure(builder.Configuration);
 
             // Add services to the container.
 

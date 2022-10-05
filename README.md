@@ -27,6 +27,7 @@ We use these packages
 - package Microsoft.Extensions.Options.ConfigurationExtensions --version 6.0.0
 - package Ardalis.Specification --version 6.1.0
 - package Ardalis.Specification.EntityFrameworkCore --version 6.1.0
+- package Microsoft.EntityFrameworkCore.Tools --version 6.0.9
 
 ## Stepts
 
@@ -78,6 +79,7 @@ src
 	- Into projects WebAPI: 
 	```c#
 	dotnet add package MediatR --version 11.0.0; 
+	dotnet add package Microsoft.EntityFrameworkCore.Tools --version 6.0.9
 	```
 
 	- Into projects Application: 
@@ -99,6 +101,11 @@ src
 	dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 6.0.9
 	dotnet add package Microsoft.Extensions.Options.ConfigurationExtensions --version 6.0.0
 	dotnet add package Ardalis.Specification.EntityFrameworkCore --version 6.1.0
+	```
+	
+	- Into projects Shared: 
+	```c#
+	dotnet add package Microsoft.Extensions.Options.ConfigurationExtensions --version 6.0.0
 	```
 
 5. Add inside **Application** project this folder structure with a Test.cs file inside each folder.
@@ -157,6 +164,11 @@ src
 			```c#
 			dotnet add WebAPI/WebAPI.csproj reference Persistance/Persistance.csproj
 			```
+			
+			- Add to WebAPI project a reference to Shared project
+			```c#
+			dotnet add WebAPI/WebAPI.csproj reference Shared/Shared.csproj
+			```
 		
 		- Add an AddApplicationLayer like a new service
 		```c#
@@ -187,6 +199,13 @@ src
 			```c#
 			dotnet add Persistence/Persistence.csproj reference Domain/Domain.csproj
 			```
+			
+		- Into Shared class library
+			- Add a reference to application project
+			```c#
+			dotnet add Shared/Shared.csproj reference Application/Application.csproj
+			```
+
 
 8. Handling Exceptions via Pipeline
 	- Add to Application/Wrappers a new class **Response** 
@@ -547,3 +566,154 @@ src
 		}
 	}
 	```
+	
+13. Migrations
+	- Override OnModelCreating method
+	```c#
+	using Application.Interfaces;
+	using Domain.Common;
+	using Domain.Entities;
+	using Microsoft.EntityFrameworkCore;
+	using System.Reflection;
+	
+	namespace Persistence
+	{
+		public class ApplicationDBContext : DbContext
+		{
+			....
+	
+			protected override void OnModelCreating(ModelBuilder modelBuilder)
+			{
+				modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+			}
+		}
+	}
+	```
+	
+	- Into Persistence/Configuration create a new  **ClienteConfig**
+	```c#
+	using Domain.Entities;
+	using Microsoft.EntityFrameworkCore;
+	using Microsoft.EntityFrameworkCore.Metadata.Builders;
+	
+	namespace Persistence.Configuration
+	{
+		public class ClienteConfig : IEntityTypeConfiguration<Cliente>
+		{
+			public void Configure(EntityTypeBuilder<Cliente> builder)
+			{
+				builder.ToTable("clientes");
+	
+				builder.HasKey(p => p.Id);
+	
+				builder.Property(p => p.Nombre)
+					.HasMaxLength(80)
+					.IsRequired();
+	
+				builder.Property(p => p.Apellido)
+					.HasMaxLength(80)
+					.IsRequired();
+	
+				builder.Property(p => p.FechaNacimiento)
+					.IsRequired();
+	
+				builder.Property(p => p.Telefono)
+					.HasMaxLength(9)
+					.IsRequired();
+	
+				builder.Property(p => p.Email)
+					.HasMaxLength(100);
+	
+				builder.Property(p => p.Direccion)
+					.HasMaxLength(120)
+					.IsRequired();
+	
+				builder.Property(p => p.Edad);
+	
+				builder.Property(p => p.CreatedBy)
+					.HasMaxLength(30);
+	
+				builder.Property(p => p.LastModifiedBy)
+					.HasMaxLength(30);
+			}
+		}
+	}
+	```
+
+	- Into Shared project
+		- Add a reference to application project
+		```c#
+		dotnet add Shared/Shared.csproj reference Application/Application.csproj
+		```
+			
+		- Add into Shared/services class **DateTimeService**
+		```c#
+		using Application.Interfaces;
+		
+		namespace Shared.Services
+		{
+			public class DateTimeService : IDateTimeService
+			{
+				public DateTime NowUtc => DateTime.UtcNow;
+			}
+		}
+		```
+		
+		- Add package to do inyect of IConfiguration enable: 
+		```c#
+		dotnet add package Microsoft.Extensions.Options.ConfigurationExtensions --version 6.0.0
+		```
+		
+		- Add ServiceExtensions: AddPersistenceInfraestructure methods.
+		```c#
+		using Application;
+		using Persistence;
+		
+		namespace WebAPI
+		{
+			public class Program
+			{
+				public static void Main(string[] args)
+				{
+					var builder = WebApplication.CreateBuilder(args);
+					
+					....
+					builder.Services.AddPersistenceInfraestructure(builder.Configuration);
+					....
+				}
+			}
+		}
+		```
+	
+	- Into projects WebAPI 
+		- add package: 
+		```c#
+		dotnet add package Microsoft.EntityFrameworkCore.Tools --version 6.0.9
+		```
+		
+		- Add an AddSharedInfraestructure like a new service
+		```c#
+		using Application;
+		using Persistence;
+		using Shared;
+		
+		namespace WebAPI
+		{
+			public class Program
+			{
+				public static void Main(string[] args)
+				{
+					var builder = WebApplication.CreateBuilder(args);
+					
+					....
+					builder.Services.AddSharedInfraestructure(builder.Configuration);
+					....
+				}
+			}
+		}
+		```
+	
+	- Ejecute migration
+		- Go to Package Manager Console View and select Persistence project.
+			- add-migration MyFirstMigration -o Migrations
+			- update-database
