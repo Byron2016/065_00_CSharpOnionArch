@@ -190,6 +190,12 @@ src
 		}
 		```
 		
+		- Into Application project 
+			- Add to Application project a reference to Domain project
+			```c#
+			dotnet add Application/Application.csproj reference Domain/Domain.csproj
+			```
+		
 		- Into Persistence class library
 			- Add a reference to application project
 			```c#
@@ -718,8 +724,9 @@ src
 			- add-migration MyFirstMigration -o Migrations
 			- update-database
 			
-13. Creating a custom error middleware
-		- Add into Application/Exceptions class **ApiException**
+14. Creating a custom error middleware
+	- Add into Application/Exceptions class **ApiException**
+		
 		```c#
 		using System.Globalization;
 		
@@ -846,6 +853,129 @@ src
 					app.UseErrorHandlingMiddleware();
 		
 					....
+				}
+			}
+		}
+		```
+		
+15. Work with **CQRS classes**
+
+	- Add to Application project a reference to Domain project
+	```c#
+	dotnet add Application/Application.csproj reference Domain/Domain.csproj
+	```
+	
+	- Configure AutoMapper
+		- Add to Application/Mappings a class **GeneralProfile**
+		```c#
+		using Application.Features.Clientes.Commands.CreateClienteCommand;
+		using AutoMapper;
+		using Domain.Entities;
+		
+		namespace Application.Mappings
+		{
+			public class GeneralProfile : Profile
+			{
+				public GeneralProfile()
+				{
+					#region Commands
+					CreateMap<CreateClienteCommand, Cliente>();
+					#endregion
+				}
+			}
+		}
+		```
+		
+	- Cliente Class **CQRS**
+		- Validation with fluenValidation: Add into Application/Features/Clientes/Commands/CreateClienteCommand a class **CreateClienteCommandValidator**
+		```c#
+		using FluentValidation;
+		
+		namespace Application.Features.Clientes.Commands.CreateClienteCommand
+		{
+			public class CreateClienteCommandValidator : AbstractValidator<CreateClienteCommand>
+			{
+				public CreateClienteCommandValidator()
+				{
+					RuleFor(p => p.Nombre)
+						.NotEmpty().WithMessage("{PropertyName} no puede ser vacío.")
+						.MaximumLength(80).WithMessage("{PropertyName} no debe exceder de {MaxLenth} caracters.");
+		
+					RuleFor(p => p.Apellido)
+						.NotEmpty().WithMessage("{PropertyName} no puede ser vacío.")
+						.MaximumLength(80).WithMessage("{PropertyName} no debe exceder de {MaxLenth} caracters.");
+		
+					RuleFor(p => p.FechaNacimiento)
+						.NotEmpty().WithMessage("Fecha de nacimiento no puede ser vacío.");
+		
+					RuleFor(p => p.Telefono)
+						.NotEmpty().WithMessage("{PropertyName} no puede ser vacío.")
+						.Matches(@"^\d{4}-\d{4}$").WithMessage("{PropertyName} debe cumplir el formato 0000-0000.")
+						.MaximumLength(9).WithMessage("{PropertyName} no debe exceder de {MaxLenth} caracters.");
+		
+					RuleFor(p => p.Email)
+						.NotEmpty().WithMessage("{PropertyName} no puede ser vacío.")
+						.EmailAddress().WithMessage("{PropertyName} debe ser una dirección de email válida" )
+						.MaximumLength(100).WithMessage("{PropertyName} no debe exceder de {MaxLenth} caracters.");
+		
+					RuleFor(p => p.Direccion)
+						.NotEmpty().WithMessage("{PropertyName} no puede ser vacío.")
+						.MaximumLength(120).WithMessage("{PropertyName} no debe exceder de {MaxLenth} caracters.");
+				}
+			}
+		}
+		```
+		
+		- Command
+		```c#
+		using Application.Wrappers;
+		using MediatR;
+		
+		namespace Application.Features.Clientes.Commands.CreateClienteCommand
+		{
+			public class CreateClienteCommand : IRequest<Response<int>>
+			{
+				private int _edad;
+				public string Nombre { get; set; }
+				public string Apellido { get; set; }
+				public DateTime FechaNacimiento { get; set; }
+				public string Telefono { get; set; }
+				public string Email { get; set; }
+				public string Direccion { get; set; }
+		
+			}
+		}
+		```
+		
+		- Handler
+		```c#
+		using Application.Features.Clientes.Commands.CreateClienteCommand;
+		using Application.Interfaces;
+		using Application.Wrappers;
+		using AutoMapper;
+		using Domain.Entities;
+		using MediatR;
+		
+		namespace Application.Features.Clientes.Handlers
+		{
+			public class CreateClienteCommandHandler : IRequestHandler<CreateClienteCommand, Response<int>>
+			{
+				private readonly IRepositoryAsync<Cliente> _repositoryAsync;
+				private readonly IMapper _mapper;
+		
+				public CreateClienteCommandHandler(IRepositoryAsync<Cliente> repositoryAsync, IMapper mapper)
+				{
+					_repositoryAsync = repositoryAsync;
+					_mapper = mapper;
+				}
+		
+		
+				public async Task<Response<int>> Handle(CreateClienteCommand request, CancellationToken cancellationToken)
+				{
+					var nuevoRegistro = _mapper.Map<Cliente>(request);
+					var data = await _repositoryAsync.AddAsync(nuevoRegistro);
+		
+					return new Response<int>(data.Id);
 				}
 			}
 		}
