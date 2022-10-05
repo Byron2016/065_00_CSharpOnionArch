@@ -1,4 +1,5 @@
 using Application;
+using Persistence;
 
 namespace WebAPI
 {
@@ -7,8 +8,9 @@ namespace WebAPI
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            
             builder.Services.AddApplicationLayer();
+            builder.Services.AddPersistenceInfraestructure(builder.Configuration);
 
             // Add services to the container.
 

@@ -148,9 +148,14 @@ src
 	```
 7. Projects references
 		- Into WebAPI project 
-			- Add to WebAPI project a reference to application project
+			- Add to WebAPI project a reference to Application project
 			```c#
 			dotnet add WebAPI/WebAPI.csproj reference Application/Application.csproj
+			```
+			
+			- Add to WebAPI project a reference to Persistance project
+			```c#
+			dotnet add WebAPI/WebAPI.csproj reference Persistance/Persistance.csproj
 			```
 		
 		- Add an AddApplicationLayer like a new service
@@ -180,7 +185,7 @@ src
 			```
 			- Add a reference to Domain project
 			```c#
-			dotnet add Persistence/Persistence.csproj reference Application/Application.csproj
+			dotnet add Persistence/Persistence.csproj reference Domain/Domain.csproj
 			```
 
 8. Handling Exceptions via Pipeline
@@ -414,7 +419,7 @@ src
 		```
 		- Add to Persistence project a reference to Domain project
 		```c#
-		dotnet add Persistence/Persistence.csproj reference Application/Application.csproj
+		dotnet add Persistence/Persistence.csproj reference Domain/Domain.csproj
 		```
 	
 	- Add into Application/Interfaces a new interface **IDateTimeService** 
@@ -501,3 +506,44 @@ src
 			}
 		}
 		```
+	- Add connection string
+	```c#
+	{
+	"ConnectionStrings": {
+		"DefaultConnection": "Server=localhost;Database=db_bancoOnion_00;User Id=sa;Password=123456;"
+	},
+	....
+	}
+	```
+	
+	- Add to WebAPI project a reference to Persistance project
+	```c#
+	dotnet add WebAPI/WebAPI.csproj reference Persistance/Persistance.csproj
+	```
+	
+	- Add ServiceExtensions: AddPersistenceInfraestructure methods.
+	```c#
+	using Application.Interfaces;
+	using Microsoft.EntityFrameworkCore;
+	using Microsoft.Extensions.Configuration;
+	using Microsoft.Extensions.DependencyInjection;
+	using Persistence.Repository;
+	
+	namespace Persistence
+	{
+		public static class ServiceExtensions
+		{
+			public static void AddPersistenceInfraestructure(this IServiceCollection services, IConfiguration configuration)
+			{
+				services.AddDbContext<ApplicationDBContext>(options => options.UseSqlServer(
+					configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly(typeof(ApplicationDBContext).Assembly.FullName)));
+	
+				#region Repositories
+				services.AddTransient(typeof(IRepositoryAsync<>), typeof(MyRepositoryAsync<>));
+				#endregion
+	
+	
+			}
+		}
+	}
+	```
