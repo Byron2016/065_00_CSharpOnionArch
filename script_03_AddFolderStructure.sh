@@ -58,6 +58,7 @@ cd $nuevoDir;
 echo $(pwd);
 
 mkdir Configuration;
+mkdir Repository;
 
 cd $pathOriginal;
 currendDir=$(pwd);
@@ -68,5 +69,15 @@ cd $nuevoDir;
 echo $(pwd);
 
 mkdir Middlewares;
+
+cd $pathOriginal;
+currendDir=$(pwd);
+echo "Current dir is: $currendDir";
+nuevoDir=$1/Shared;
+echo "Moving to $nuevoDir";
+cd $nuevoDir;
+echo $(pwd);
+
+mkdir Services;
 
 echo "Add folders done";

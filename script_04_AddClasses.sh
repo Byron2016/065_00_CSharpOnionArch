@@ -1,11 +1,13 @@
 #! /bin/bash
 # To run:  bash script_04_AddClasses.sh BancoCursoRESTFull
 
+echo "";
 echo "////////////////////////////////////////////////////////////////////////";
 echo "                        script_04_AddClasses                            ";
 echo "////////////////////////////////////////////////////////////////////////";
 echo "";
 
+echo "";
 echo "***********************************************************************";
 echo "                        Add class to Application folder               *";
 echo "***********************************************************************";
@@ -30,29 +32,30 @@ echo '' >> Mappings/Test.cs;
 echo '' >> Wrappers/Response.cs;
 
 cd $pathOriginal;
-#echo "llamando a Script_06_CreateClass.sh"
-bash Script_06_CreateClass.sh CreateClienteCommand Application.Features.Clientes.Commands.CreateClienteCommand $1/Application/Features/Clientes/Commands/CreateClienteCommand
-bash Script_06_CreateClass.sh DeleteClienteCommand Application.Features.Clientes.Commands.DeleteClienteCommand $1/Application/Features/Clientes/Commands/DeleteClienteCommand
-bash Script_06_CreateClass.sh UpdateClienteCommand Application.Features.Clientes.Commands.UpdateClienteCommand $1/Application/Features/Clientes/Commands/UpdateClienteCommand
+#echo "llamando a script_06_CreateClass.sh"
+bash script_06_CreateClass.sh CreateClienteCommand Application.Features.Clientes.Commands.CreateClienteCommand $1/Application/Features/Clientes/Commands/CreateClienteCommand
+bash script_06_CreateClass.sh DeleteClienteCommand Application.Features.Clientes.Commands.DeleteClienteCommand $1/Application/Features/Clientes/Commands/DeleteClienteCommand
+bash script_06_CreateClass.sh UpdateClienteCommand Application.Features.Clientes.Commands.UpdateClienteCommand $1/Application/Features/Clientes/Commands/UpdateClienteCommand
 
-bash Script_06_CreateClass.sh GetAllClientes Application.Features.Clientes.Queries.GetAllClientes $1/Application/Features/Clientes/Queries/GetAllClientes
-bash Script_06_CreateClass.sh GetClienteById Application.Features.Clientes.Queries.GetClienteById $1/Application/Features/Clientes/Queries/GetClienteById
+bash script_06_CreateClass.sh GetAllClientes Application.Features.Clientes.Queries.GetAllClientes $1/Application/Features/Clientes/Queries/GetAllClientes
+bash script_06_CreateClass.sh GetClienteById Application.Features.Clientes.Queries.GetClienteById $1/Application/Features/Clientes/Queries/GetClienteById
 
-bash Script_06_CreateClass.sh CreateClienteCommandHandler Application.Features.Clientes.Handlers $1/Application/Features/Clientes/Handlers
-bash Script_06_CreateClass.sh DeleteClienteCommandHandler Application.Features.Clientes.Handlers $1/Application/Features/Clientes/Handlers
-bash Script_06_CreateClass.sh UpdateClienteCommandHandler Application.Features.Clientes.Handlers $1/Application/Features/Clientes/Handlers
+bash script_06_CreateClass.sh CreateClienteCommandHandler Application.Features.Clientes.Handlers $1/Application/Features/Clientes/Handlers
+bash script_06_CreateClass.sh DeleteClienteCommandHandler Application.Features.Clientes.Handlers $1/Application/Features/Clientes/Handlers
+bash script_06_CreateClass.sh UpdateClienteCommandHandler Application.Features.Clientes.Handlers $1/Application/Features/Clientes/Handlers
 
-bash Script_06_CreateClass.sh GetAllClientesQueryHandler Application.Features.Clientes.Handlers $1/Application/Features/Clientes/Handlers
-bash Script_06_CreateClass.sh GetClienteByIdQueryHandler Application.Features.Clientes.Handlers $1/Application/Features/Clientes/Handlers
+bash script_06_CreateClass.sh GetAllClientesQueryHandler Application.Features.Clientes.Handlers $1/Application/Features/Clientes/Handlers
+bash script_06_CreateClass.sh GetClienteByIdQueryHandler Application.Features.Clientes.Handlers $1/Application/Features/Clientes/Handlers
 
-bash Script_06_CreateClass.sh ErrorHandlersMiddlewares WebAPI.Middlewares $1/WebAPI/Middlewares
+bash script_06_CreateClass.sh ErrorHandlersMiddlewares WebAPI.Middlewares $1/WebAPI/Middlewares
 
-echo "FIN 1llamando a Script_06_CreateClass.sh"
+echo "FIN 1llamando a script_06_CreateClass.sh"
 
 
 echo $(pwd);
+echo "";
 echo "***********************************************************************";
-echo "                     Add class to Domain folder                       *";
+echo "                     Add class to Domain project                      *";
 echo "***********************************************************************";
 echo "";
 cd $pathOriginal;
@@ -68,12 +71,25 @@ echo "Moving to $nuevoDir";
 cd $nuevoDir;
 echo '' >> Configuration/Test.cs
 
+echo $(pwd);
+echo "";
+echo "***********************************************************************";
+echo "                     Add class to Shared project                      *";
+echo "***********************************************************************";
+echo "";
+cd $pathOriginal;
+nuevoDir=$1/Shared;
+echo "Moving to $nuevoDir";
+cd $nuevoDir;
+echo '' >> Services/Test.cs
+
 
 cd $pathOriginal;
 nuevoDir=$1/Application;
 echo "Moving to $nuevoDir";
 cd $nuevoDir;
 
+echo "";
 echo "***********************************************************************";
 echo "                     Add class ServiceExtensions.cs                   *";
 echo "***********************************************************************";
@@ -105,7 +121,7 @@ nuevoDir=$1/Application/Behavior;
 echo "Moving to $nuevoDir";
 cd $nuevoDir;
 
-
+echo "";
 echo "***********************************************************************";
 echo "                    Add class ValidationBehavior.cs                   *";
 echo "***********************************************************************";
@@ -153,6 +169,7 @@ nuevoDir=$1/Application/Exceptions;
 echo "Moving to $nuevoDir";
 cd $nuevoDir;
 
+echo "";
 echo "***********************************************************************";
 echo "                   Add class ValidationException.cs                   *";
 echo "***********************************************************************";
@@ -182,11 +199,14 @@ echo ""                                                                         
 echo "    }"                                                                                      >> ValidationException.cs
 echo "}"                                                                                          >> ValidationException.cs
 
+echo "Add classes done";
+
 cd $pathOriginal; 
 nuevoDir=$1/Application/Wrappers;
 echo "Moving to $nuevoDir";
 cd $nuevoDir;
 
+echo "";
 echo "***********************************************************************";
 echo "                     Add class Response.cs                            *";
 echo "***********************************************************************";
@@ -227,7 +247,7 @@ echo "        }"                                               >> Response.cs
 echo "    }"                                                   >> Response.cs
 echo "}"                                                       >> Response.cs
 
-
+echo "Add classes done";
 
 
 

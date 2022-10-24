@@ -48,14 +48,16 @@ rm $1/Shared/Class1.cs
 
 #bash script_03_AddFolderStructure.sh $1
 
-if [ $2 = "todo" ]; then
-   echo "Add project done";
-   bash script_02_AddPackages.sh $1
-   bash script_03_AddFolderStructure.sh $1
-   bash script_04_AddClasses.sh $1
-   bash script_05_references.sh $1
+if [[ $2 = "todo" ]]; then
+	echo "Add project done";
+	bash script_02_AddPackages.sh $1
+	bash script_03_AddFolderStructure.sh $1
+	bash script_04_AddClasses.sh $1
+	bash script_05_references.sh $1
 else
-  echo "Add project done";
+	echo "";
+	echo "Add project done";
+	echo "";
 fi
 
 
