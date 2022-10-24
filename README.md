@@ -28,6 +28,7 @@ We use these packages
 - package Ardalis.Specification --version 6.1.0
 - package Ardalis.Specification.EntityFrameworkCore --version 6.1.0
 - package Microsoft.EntityFrameworkCore.Tools --version 6.0.9
+- package Microsoft.AspNetCore.Mvc.Versioning --version 5.0.0
 
 ## Stepts
 
@@ -80,6 +81,7 @@ src
 	```c#
 	dotnet add package MediatR --version 11.0.0; 
 	dotnet add package Microsoft.EntityFrameworkCore.Tools --version 6.0.9
+	dotnet add package Microsoft.AspNetCore.Mvc.Versioning --version 5.0.0
 	```
 
 	- Into projects Application: 
@@ -219,28 +221,31 @@ src
 	```c#	
 	namespace Application.Wrappers
 	{
-        public bool Succeeded { get; set; }
-        public string Message { get; set; }
-        public List<string> Errors { get; set; }
-        public T Data { get; set; }
-
-        public Response()
-        {
-
-        }
-
-        public Response(T data, string message = null)
-        {
-            Succeeded = true;
-            Message = message;
-            Data = data;
-        }
-
-        public Response(string message)
-        {
-            Succeeded = false;
-            Message = message;
-        }
+		public class Response<T>
+    	{
+			public bool Succeeded { get; set; }
+			public string Message { get; set; }
+			public List<string> Errors { get; set; }
+			public T Data { get; set; }
+	
+			public Response()
+			{
+	
+			}
+	
+			public Response(T data, string message = null)
+			{
+				Succeeded = true;
+				Message = message;
+				Data = data;
+			}
+	
+			public Response(string message)
+			{
+				Succeeded = false;
+				Message = message;
+			}
+		}
 	}
 	```
 
@@ -499,7 +504,6 @@ src
 				}
 	
 				return base.SaveChangesAsync(cancellationToken);
-	
 			}
 		}
 	}
@@ -646,6 +650,27 @@ src
 	}
 	```
 
+	- Add ServiceExtensions: AddPersistenceInfraestructure methods.
+	```c#
+	using Application;
+	using Persistence;
+	
+	namespace WebAPI
+	{
+		public class Program
+		{
+			public static void Main(string[] args)
+			{
+				var builder = WebApplication.CreateBuilder(args);
+				
+				....
+				builder.Services.AddPersistenceInfraestructure(builder.Configuration);
+				....
+			}
+		}
+	}
+	```
+
 	- Into Shared project
 		- Add a reference to application project
 		```c#
@@ -669,11 +694,30 @@ src
 		```c#
 		dotnet add package Microsoft.Extensions.Options.ConfigurationExtensions --version 6.0.0
 		```
-		
-		- Add ServiceExtensions: AddPersistenceInfraestructure methods.
+
+		- Add ServiceExtensions: AddSharedInfraestructure methods.
 		```c#
-		using Application;
-		using Persistence;
+		using Application.Interfaces;
+		using Microsoft.Extensions.Configuration;
+		using Microsoft.Extensions.DependencyInjection;
+		using Shared.Services;
+		
+		namespace Shared
+		{
+			public static class ServiceExtensions
+			{
+				public static void AddSharedInfraestructure(this IServiceCollection services, IConfiguration configuration)
+				{
+					services.AddTransient<IDateTimeService, DateTimeService>();
+				}
+			}
+		}
+		```
+		
+		- Add ServiceExtensions: AddSharedInfraestructure methods.
+		```c#
+		....
+		using Shared;
 		
 		namespace WebAPI
 		{
@@ -684,7 +728,7 @@ src
 					var builder = WebApplication.CreateBuilder(args);
 					
 					....
-					builder.Services.AddPersistenceInfraestructure(builder.Configuration);
+					builder.Services.AddSharedInfraestructure(builder.Configuration);
 					....
 				}
 			}
@@ -697,7 +741,7 @@ src
 		dotnet add package Microsoft.EntityFrameworkCore.Tools --version 6.0.9
 		```
 		
-		- Add an AddSharedInfraestructure like a new service
+		- Add ServiceExtensions: AddSharedInfraestructure methods.
 		```c#
 		using Application;
 		using Persistence;
@@ -980,3 +1024,136 @@ src
 			}
 		}
 		```
+		
+16. Controllers **CQRS classes**
+
+	- Add to WebAPI/Controllers a new **API** controller **BaseApiController**
+	```c#
+	using MediatR;
+	using Microsoft.AspNetCore.Http;
+	using Microsoft.AspNetCore.Mvc;
+	using Microsoft.Extensions.DependencyInjection;
+	
+	namespace WebAPI.Controllers
+	{
+		[ApiController]
+		[Route("api/v{version:apiVersion}/[controller]")]
+		public abstract class BaseApiController : ControllerBase
+		{
+			private IMediator _mediator;
+			protected IMediator Mediator => _mediator ??= HttpContext.RequestServices.GetService<IMediator>();
+		}
+	}
+	```
+	
+	- Into projects WebAPI add package 
+	```c#
+	dotnet add package Microsoft.AspNetCore.Mvc.Versioning --version 5.0.0
+	```
+	
+	- Add to WebAPI/Controllers/v1 a new **API** controller **ClientesController**
+	```c#
+	using Application.Features.Clientes.Commands.CreateClienteCommand;
+	using Microsoft.AspNetCore.Mvc;
+	
+	namespace WebAPI.Controllers.v1
+	{
+		[ApiVersion("1.0")]
+		public class ClientesController : BaseApiController
+		{
+			//Post api/controllers
+			[HttpPost]
+			public async Task<IActionResult> Post(CreateClienteCommand command)
+			{
+				return Ok(await Mediator.Send(command));
+			}
+		}
+	}
+	```
+	
+	- Register our version controller.
+		- Add ServiceExtensions
+		```c#
+		using Microsoft.AspNetCore.Mvc;
+		
+		namespace WebAPI.Extensions
+		{
+			public static class ServiceExtensions
+			{
+				public static void AddApiVersioningExtension(this IServiceCollection services)
+				{
+					services.AddApiVersioning(Config => 
+					{
+						Config.DefaultApiVersion = new ApiVersion(1, 0);
+		
+						Config.AssumeDefaultVersionWhenUnspecified = true;
+		
+						Config.ReportApiVersions = true;
+					});
+				}
+			}
+		}
+		```
+		
+		- Add Service pipe line
+		```c#
+		using Application;
+		using Persistence;
+		using Shared;
+		using WebAPI.Extensions;
+		
+		namespace WebAPI
+		{
+			public class Program
+			{
+				public static void Main(string[] args)
+				{
+					....
+		
+					builder.Services.AddControllers();
+					builder.Services.AddApiVersioningExtension();
+		
+					// Learn more about configuring Swagger/OpenAPI at 
+					....
+				}
+			}
+		}
+		```
+		
+		- Register ValidationBehavior like a service
+		```c#
+		using Application.Behavior;
+		using FluentValidation;
+		using MediatR;
+		using Microsoft.Extensions.DependencyInjection;
+		using System.Reflection;
+		
+		namespace Application
+		{
+			public static class ServiceExtensions
+			{
+				public static void AddApplicationLayer(this IServiceCollection services)
+				{
+					....
+					services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+		
+				}
+			}
+		}
+		```
+		
+		- Test with Swagger
+			- Ejecute application
+			- Try it out: "POST /api/v{version}/Clientes"
+				- version: 1
+				- Request body
+					```c#
+					{
+					"nombre": "b1",
+					"apellido": "v1",
+					"fechaNacimiento": "1980-10-24",
+					"telefono": "999-999",
+					"email": "email1@yahoo.com",
+					"direccion": "xxx1"
+					}
+					```
