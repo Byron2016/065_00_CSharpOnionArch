@@ -28,7 +28,8 @@ namespace Persistence.Configuration
                 .IsRequired();
 
             builder.Property(p => p.Email)
-                .HasMaxLength(100);
+                .HasMaxLength(100)
+                .IsRequired(false);
 
             builder.Property(p => p.Direccion)
                 .HasMaxLength(120)
@@ -37,10 +38,12 @@ namespace Persistence.Configuration
             builder.Property(p => p.Edad);
 
             builder.Property(p => p.CreatedBy)
-                .HasMaxLength(30);
+                .HasMaxLength(30)
+                .IsRequired(false);
 
             builder.Property(p => p.LastModifiedBy)
-                .HasMaxLength(30);
+                .HasMaxLength(30)
+                .IsRequired(false);
         }
     }
 }
