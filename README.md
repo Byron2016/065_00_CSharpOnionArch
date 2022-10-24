@@ -1157,3 +1157,250 @@ src
 					"direccion": "xxx1"
 					}
 					```
+					
+	- Implementing Update and Delete a client.
+		- Update
+			- UpdateClienteCommand
+			```c#
+			using Application.Wrappers;
+			using MediatR;
+			
+			namespace Application.Features.Clientes.Commands.UpdateClienteCommand
+			{
+				public class UpdateClienteCommand : IRequest<Response<int>>
+				{
+					public int Id { get; set; }
+					public string Nombre { get; set; }
+					public string Apellido { get; set; }
+					public DateTime FechaNacimiento { get; set; }
+					public string Telefono { get; set; }
+					public string Email { get; set; }
+					public string Direccion { get; set; }
+				}
+			}
+			```
+			- UpdateClienteCommandValidator
+			```c#
+			using FluentValidation;
+			
+			namespace Application.Features.Clientes.Commands.UpdateClienteCommand
+			{
+				public class UpdateClienteCommandValidator : AbstractValidator<UpdateClienteCommand>
+				{
+					public UpdateClienteCommandValidator()
+					{
+						RuleFor(p => p.Id)
+							.NotEmpty().WithMessage("{PropertyName} no puede ser vacío.");
+			
+						RuleFor(p => p.Nombre)
+							.NotEmpty().WithMessage("{PropertyName} no puede ser vacío.")
+							.MaximumLength(80).WithMessage("{PropertyName} no debe exceder de {MaxLenth} caracters.");
+			
+						RuleFor(p => p.Apellido)
+							.NotEmpty().WithMessage("{PropertyName} no puede ser vacío.")
+							.MaximumLength(80).WithMessage("{PropertyName} no debe exceder de {MaxLenth} caracters.");
+			
+						RuleFor(p => p.FechaNacimiento)
+							.NotEmpty().WithMessage("Fecha de nacimiento no puede ser vacío.");
+			
+						RuleFor(p => p.Telefono)
+							.NotEmpty().WithMessage("{PropertyName} no puede ser vacío.")
+							.Matches(@"^\d{4}-\d{4}$").WithMessage("{PropertyName} debe cumplir el formato 0000-0000.")
+							.MaximumLength(9).WithMessage("{PropertyName} no debe exceder de {MaxLenth} caracters.");
+			
+						RuleFor(p => p.Email)
+							.NotEmpty().WithMessage("{PropertyName} no puede ser vacío.")
+							.EmailAddress().WithMessage("{PropertyName} debe ser una dirección de email válida")
+							.MaximumLength(100).WithMessage("{PropertyName} no debe exceder de {MaxLenth} caracters.");
+			
+						RuleFor(p => p.Direccion)
+							.NotEmpty().WithMessage("{PropertyName} no puede ser vacío.")
+							.MaximumLength(120).WithMessage("{PropertyName} no debe exceder de {MaxLenth} caracters.");
+					}
+				}
+			}
+			```
+			- UpdateClienteCommandHandler
+			```c#
+			using Application.Features.Clientes.Commands.UpdateClienteCommand;
+			using Application.Interfaces;
+			using Application.Wrappers;
+			using Domain.Entities;
+			using MediatR;
+			
+			namespace Application.Features.Clientes.Handlers
+			{
+				public class UpdateClienteCommandHandler : IRequestHandler<UpdateClienteCommand, Response<int>>
+				{
+					private readonly IRepositoryAsync<Cliente> _repositoryAsync;
+			
+					public UpdateClienteCommandHandler(IRepositoryAsync<Cliente> repositoryAsync)
+					{
+						_repositoryAsync = repositoryAsync;
+					}
+			
+			
+					public async Task<Response<int>> Handle(UpdateClienteCommand request, CancellationToken cancellationToken)
+					{
+						//V.14
+						var cliente = await _repositoryAsync.GetByIdAsync(request.Id);
+			
+						if(cliente == null)
+						{
+							throw new KeyNotFoundException($"Registro no encontrado con el id {request.Id}");
+						}
+						else
+						{
+							// no se usa automapper x q EF necesita distinguir cambios en la entidad. Si hago automapper me va a fallar.
+							cliente.Nombre = request.Nombre;
+							cliente.Apellido = request.Apellido;
+							cliente.FechaNacimiento = request.FechaNacimiento;
+							cliente.Telefono = request.Telefono;
+							cliente.Email = request.Email;
+							cliente.Direccion = request.Direccion;
+			
+							await _repositoryAsync.UpdateAsync(cliente);
+			
+							return new Response<int>(cliente.Id);
+			
+						}
+					}
+			
+				}
+			}
+			```
+			- ClientesController
+			```c#
+			using Application.Features.Clientes.Commands.UpdateClienteCommand;
+			
+			namespace WebAPI.Controllers.v1
+			{
+				[ApiVersion("1.0")]
+				public class ClientesController : BaseApiController
+				{
+					....
+			
+					//PUT api/<controllers>/5
+					[HttpPut("{id}")]
+					public async Task<IActionResult> Put(int id, UpdateClienteCommand command)
+					{
+						if(id != command.Id)
+							return BadRequest();
+			
+						return Ok(await Mediator.Send(command));
+					}
+				}
+			}
+			```
+			- Test with Swagger
+				- Ejecute application
+				- Try it out: "PUT /api/v{version}/Clientes/{id}"
+					- id: 1
+					- version: 1
+					- Request body
+						```c#
+						{
+						"id": 1,
+						"nombre": "b1",
+						"apellido": "v1",
+						"fechaNacimiento": "1980-10-24",
+						"telefono": "999-999",
+						"email": "email1@yahoo.com",
+						"direccion": "xxx1"
+						}
+						```
+			
+		- Delete
+			- DeleteClienteCommand
+			```c#
+			using Application.Wrappers;
+			using MediatR;
+			
+			namespace Application.Features.Clientes.Commands.DeleteClienteCommand
+			{
+				public class DeleteClienteCommand : IRequest<Response<int>>
+				{
+					public int Id { get; set; }
+				}
+			}
+			```
+			- DeleteClienteCommandValidator
+			```c#
+			using FluentValidation;
+			
+			namespace Application.Features.Clientes.Commands.DeleteClienteCommand
+			{
+				public class DeleteClienteCommandValidator : AbstractValidator<DeleteClienteCommand>
+				{
+					public DeleteClienteCommandValidator()
+					{
+			
+					}
+				}
+			}
+			```
+			- DeleteClienteCommandHandler
+			```c#
+			using Application.Features.Clientes.Commands.DeleteClienteCommand;
+			using Application.Interfaces;
+			using Application.Wrappers;
+			using Domain.Entities;
+			using MediatR;
+			
+			namespace Application.Features.Clientes.Handlers
+			{
+				public class DeleteClienteCommandHandler : IRequestHandler<DeleteClienteCommand, Response<int>>
+				{
+					private readonly IRepositoryAsync<Cliente> _repositoryAsync;
+			
+					public DeleteClienteCommandHandler(IRepositoryAsync<Cliente> repositoryAsync)
+					{
+						_repositoryAsync = repositoryAsync;
+					}
+			
+					public async Task<Response<int>> Handle(DeleteClienteCommand request, CancellationToken cancellationToken)
+					{
+						//V.14
+						var cliente = await _repositoryAsync.GetByIdAsync(request.Id);
+			
+						if (cliente == null)
+						{
+							throw new KeyNotFoundException($"Registro no encontrado con el id {request.Id}");
+						}
+						else
+						{
+							await _repositoryAsync.DeleteAsync(cliente);
+			
+							return new Response<int>(cliente.Id);
+			
+						}
+					}
+				}
+			}
+			```
+			- ClientesController
+			```c#
+			using Application.Features.Clientes.Commands.DeleteClienteCommand;
+			
+			namespace WebAPI.Controllers.v1
+			{
+				[ApiVersion("1.0")]
+				public class ClientesController : BaseApiController
+				{
+					....
+			
+					//DELETE api/<controllers>/5
+					[HttpDelete("{id}")]
+					public async Task<IActionResult> Delete(int id)
+					{
+						return Ok(await Mediator.Send(new DeleteClienteCommand { Id = id }));
+					}
+				}
+			}
+			```
+					
+			- Test with Swagger
+				- Ejecute application
+				- Try it out: "DELETE /api/v{version}/Clientes/{id}"
+					- id: 1
+					- version: 1

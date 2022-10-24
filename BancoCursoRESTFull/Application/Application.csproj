@@ -16,8 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Clientes\Commands\DeleteClienteCommand\" />
-    <Folder Include="Features\Clientes\Commands\UpdateClienteCommand\" />
     <Folder Include="Features\Clientes\Queries\" />
   </ItemGroup>
 
